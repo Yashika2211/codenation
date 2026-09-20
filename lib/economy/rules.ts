@@ -109,11 +109,12 @@ const HACKATHON_TABLE: Record<HackathonBracket, { compute: number; alloy: number
 
 export function hackathonGrants(bracket: HackathonBracket): Grant[] {
   const row = HACKATHON_TABLE[bracket];
-  return [
+  const grants: Grant[] = [
     { resource: "compute", amount: row.compute },
     { resource: "alloy", amount: row.alloy },
     { resource: "rep", amount: row.rep },
-  ].filter((g) => g.amount > 0);
+  ];
+  return grants.filter((g) => g.amount > 0);
 }
 
 export function dailyContractGrants(): Grant[] {
