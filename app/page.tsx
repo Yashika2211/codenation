@@ -16,6 +16,7 @@ import { RANKS } from "@/lib/progression/ranks";
 import { ACCENT_HEX } from "@/lib/design/accents";
 import { getPlatformTelemetry } from "@/lib/queries/telemetry";
 import { getTopNations } from "@/lib/queries/nations";
+import { getCurrentProfile } from "@/lib/supabase/server";
 
 /** Counts are read per request, so the portal never serves a stale metric. */
 export const dynamic = "force-dynamic";
@@ -83,11 +84,26 @@ function LadderSection() {
 }
 
 export default async function HomePage() {
-  const [telemetry, nations] = await Promise.all([getPlatformTelemetry(), getTopNations(3)]);
+  const [telemetry, nations, viewer] = await Promise.all([
+    getPlatformTelemetry(),
+    getTopNations(3),
+    getCurrentProfile(),
+  ]);
 
   return (
     <Atmosphere>
-      <TopNav />
+      <TopNav
+        user={
+          viewer
+            ? {
+                handle: viewer.handle,
+                displayName: viewer.display_name,
+                avatarSeed: viewer.avatar_seed,
+              }
+            : null
+        }
+        reputation={viewer?.reputation}
+      />
 
       <main className="pb-24 lg:pb-0">
         <Hero />
