@@ -21,6 +21,8 @@ export type RunOutput = {
   stderr: string;
   exitCode: number;
   runtimeMs: number;
+  /** Peak resident memory when the backend reports it. Piston does not. */
+  memoryKb: number | null;
   verdict: RunVerdictKind;
 };
 

@@ -61,6 +61,7 @@ export class PistonRunner implements CodeRunner {
         stderr: truncate(compile.stderr ?? compile.output ?? "Compilation failed", STDERR_LIMIT),
         exitCode: compile.code,
         runtimeMs,
+        memoryKb: null,
         verdict: "compile_error",
       };
     }
@@ -77,6 +78,7 @@ export class PistonRunner implements CodeRunner {
       stderr: truncate(stage.stderr ?? "", STDERR_LIMIT),
       exitCode,
       runtimeMs,
+      memoryKb: null,
       verdict: timedOut ? "timeout" : exitCode === 0 ? "ok" : "runtime_error",
     };
   }
