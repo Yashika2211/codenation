@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/supabase/server";
 
+/** Never prerender: this depends entirely on who is asking. */
+export const dynamic = "force-dynamic";
+
 /** Shortcut to your own profile. The middleware guarantees a session here. */
 export default async function MePage() {
   const profile = await getCurrentProfile();
