@@ -41,12 +41,17 @@ export function hasServiceRoleKey(): boolean {
 
 export type JudgeProvider = "piston" | "judge0";
 
+/**
+ * Judge0 is the default because the public Piston endpoint became whitelist-only
+ * on 2026-02-15 and now refuses /execute. `PistonRunner` is unchanged and still
+ * selected with JUDGE_PROVIDER=piston, which is what a self-hosted Piston uses.
+ */
 export function judgeProvider(): JudgeProvider {
-  return process.env.JUDGE_PROVIDER === "judge0" ? "judge0" : "piston";
+  return process.env.JUDGE_PROVIDER === "piston" ? "piston" : "judge0";
 }
 
 export const JUDGE_ENV = {
   pistonUrl: process.env.PISTON_URL ?? "https://emkc.org/api/v2/piston",
-  judge0Url: process.env.JUDGE0_URL ?? "",
+  judge0Url: process.env.JUDGE0_URL ?? "https://ce.judge0.com",
   judge0Token: process.env.JUDGE0_TOKEN ?? "",
 } as const;
