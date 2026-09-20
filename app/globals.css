@@ -1,0 +1,290 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   CodeNation design tokens — "neon terminal deco"
+   Near-black void ground, glass panels, one spring-cyan accent carrying the eye.
+   Every value below is referenced by name. Do not inline hex codes in components.
+--------------------------------------------------------------------------- */
+
+@theme {
+  /* ground */
+  --color-void: #06070d;
+  --color-panel: #0d1018;
+  --color-elevated: #12161f;
+
+  /* glass */
+  --color-glass: rgb(255 255 255 / 0.028);
+  --color-glass-hi: rgb(255 255 255 / 0.05);
+  --color-line: rgb(124 140 180 / 0.16);
+  --color-line-hi: rgb(124 140 180 / 0.24);
+
+  /* text */
+  --color-text: #eaf0f8;
+  --color-muted: #a9b8cc;
+  --color-dim: #93a3b8;
+  --color-faint: #7e8ca3;
+  --color-ghost: #6e7b90;
+
+  /* accents */
+  --color-flux: #3be8b0;
+  --color-ion: #7c6bff;
+  --color-plasma: #e84fa8;
+  --color-signal: #5fc8ff;
+  --color-amber: #f2b441;
+
+  /* text that sits ON an accent fill — never white */
+  --color-on-flux: #04120d;
+  --color-on-ion: #0a0720;
+  --color-on-plasma: #1a0512;
+  --color-on-signal: #04141f;
+  --color-on-amber: #1b1408;
+
+  /* verdict semantics */
+  --color-pass: #3be8b0;
+  --color-fail: #ff6b81;
+  --color-warn: #f2b441;
+
+  --font-display: var(--font-syne), system-ui, sans-serif;
+  --font-body: var(--font-manrope), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  --radius-chip: 9px;
+  --radius-card: 14px;
+  --radius-panel: 18px;
+  --radius-hero: 24px;
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+--------------------------------------------------------------------------- */
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+  }
+
+  /* Numbers always read as data. */
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-flux);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: rgb(59 232 176 / 0.28);
+    color: var(--color-text);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgb(124 140 180 / 0.18);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(124 140 180 / 0.3);
+    background-clip: content-box;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font-family: inherit;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Utilities the component layer leans on
+--------------------------------------------------------------------------- */
+
+@utility cn-atmosphere {
+  background-image:
+    radial-gradient(1100px 620px at 14% -12%, rgb(124 107 255 / 0.26), transparent 62%),
+    radial-gradient(860px 520px at 92% -4%, rgb(59 232 176 / 0.15), transparent 60%);
+  background-color: var(--color-void);
+}
+
+@utility cn-grid-overlay {
+  background-image:
+    linear-gradient(rgb(124 140 180 / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(124 140 180 / 0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@utility cn-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+}
+
+@utility cn-mono-sm {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+/* Fades a long scroll region out at its edges instead of cutting it. */
+@utility cn-fade-y {
+  mask-image: linear-gradient(to bottom, transparent, black 24px, black calc(100% - 24px), transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Keyframes
+--------------------------------------------------------------------------- */
+
+@keyframes cn-stream {
+  0% {
+    transform: translateY(-120px);
+    opacity: 0;
+  }
+  14%,
+  86% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(620px);
+    opacity: 0;
+  }
+}
+
+@keyframes cn-pulse {
+  0%,
+  100% {
+    opacity: 0.32;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes cn-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+@keyframes cn-dash {
+  to {
+    stroke-dashoffset: -220;
+  }
+}
+
+@keyframes cn-scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(400%);
+  }
+}
+
+@keyframes cn-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cn-spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cn-anim-stream {
+  animation: cn-stream 7s linear infinite;
+}
+.cn-anim-pulse {
+  animation: cn-pulse 2.6s ease-in-out infinite;
+}
+.cn-anim-float {
+  animation: cn-float 5.5s ease-in-out infinite;
+}
+.cn-anim-dash {
+  animation: cn-dash 9s linear infinite;
+}
+.cn-anim-scan {
+  animation: cn-scan 4.5s linear infinite;
+}
+.cn-anim-rise {
+  animation: cn-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.cn-anim-spin-slow {
+  animation: cn-spin-slow 22s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .cn-anim-stream,
+  .cn-anim-pulse,
+  .cn-anim-float,
+  .cn-anim-dash,
+  .cn-anim-scan,
+  .cn-anim-rise,
+  .cn-anim-spin-slow {
+    animation: none;
+  }
+}
