@@ -1,0 +1,39 @@
+# Self-hosted Piston.
+#
+# The public endpoint at emkc.org became whitelist-only on 2026-02-15, so this
+# is the path back to the spec's original choice. Bring it up, install the
+# runtimes you need, then set:
+#
+#   JUDGE_PROVIDER=piston
+#   PISTON_URL=http://localhost:2000/api/v2
+#
+# Install runtimes once the container is healthy:
+#   docker exec piston piston ppman install python 3.10.0
+#   docker exec piston piston ppman install rust 1.68.2
+#   docker exec piston piston ppman install go 1.16.2
+#   docker exec piston piston ppman install c++ 10.2.0
+#   docker exec piston piston ppman install java 15.0.2
+#   docker exec piston piston ppman install javascript 18.15.0
+#   docker exec piston piston ppman install typescript 5.0.3
+
+services:
+  piston:
+    image: ghcr.io/engineer-man/piston
+    container_name: piston
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "2000:2000"
+    volumes:
+      - piston-packages:/piston/packages
+    tmpfs:
+      - /piston/jobs:exec,mode=711
+    environment:
+      PISTON_LOG_LEVEL: INFO
+      # Room for a compiled language's build step.
+      PISTON_COMPILE_TIMEOUT: "20000"
+      PISTON_RUN_TIMEOUT: "15000"
+      PISTON_MAX_CONCURRENT_JOBS: "8"
+
+volumes:
+  piston-packages:
