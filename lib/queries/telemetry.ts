@@ -1,10 +1,12 @@
+import { createServerSupabase } from "@/lib/supabase/server";
+
 /**
  * Platform telemetry for the entry portal.
  *
  * Section 11 of the spec is absolute: never render a fabricated number as a
- * platform metric. Until Supabase is wired (M2) this returns `live: false` and
- * the UI renders a dash instead of inventing a count. When the database is
- * present the same shape carries real rows — the component never changes.
+ * platform metric. When Supabase is absent this returns `live: false` and the
+ * UI renders a dash rather than inventing a count. When it is present these are
+ * direct `count` queries — if the real number is 3, the page says 3.
  */
 
 export type Telemetry = {
@@ -35,6 +37,39 @@ export function renderMetric(value: number, live: boolean): string {
 }
 
 export async function getPlatformTelemetry(): Promise<Telemetry> {
-  // M2 replaces this with parallel `head: true` count queries against Supabase.
-  return EMPTY_TELEMETRY;
+  const supabase = await createServerSupabase();
+  if (!supabase) return EMPTY_TELEMETRY;
+
+  try {
+    const [citizens, nations, problems, submissions, accepted, buildings] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("is_seed", false),
+      supabase.from("nations").select("id", { count: "exact", head: true }).eq("is_seed", false),
+      supabase.from("problems").select("id", { count: "exact", head: true }).eq("is_public", true),
+      supabase.from("submissions_public").select("id", { count: "exact", head: true }),
+      supabase
+        .from("submissions_public")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "accepted"),
+      supabase
+        .from("buildings")
+        .select("id", { count: "exact", head: true })
+        .eq("state", "complete"),
+    ]);
+
+    return {
+      live: true,
+      citizens: citizens.count ?? 0,
+      nations: nations.count ?? 0,
+      problems: problems.count ?? 0,
+      submissions: submissions.count ?? 0,
+      accepted: accepted.count ?? 0,
+      buildings: buildings.count ?? 0,
+    };
+  } catch {
+    // A configured-but-unreachable database still must not invent numbers.
+    return EMPTY_TELEMETRY;
+  }
 }
