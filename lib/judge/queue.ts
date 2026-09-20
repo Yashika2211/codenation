@@ -63,5 +63,12 @@ export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** ~4 req/s with two in flight, comfortably inside the public limit. */
-export const pistonQueue = new RateLimitedQueue(260, 2);
+/**
+ * ~4 req/s with two in flight. Both public backends throttle a burst, and a
+ * submission's cases walk through this gate one at a time rather than arriving
+ * all at once and coming back as a wall of 429s.
+ */
+export const judgeQueue = new RateLimitedQueue(260, 2);
+
+/** Kept as a named alias so `piston.ts` reads clearly at its call site. */
+export const pistonQueue = judgeQueue;
