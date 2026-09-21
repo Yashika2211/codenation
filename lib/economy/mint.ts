@@ -23,7 +23,12 @@ import {
 
 export type MintInput = {
   userId: string;
-  reason: MintReason;
+  /**
+   * A value from REASONS, optionally suffixed with `:<period>` so a recurring
+   * charge (upkeep) can be made idempotent per period without inventing a new
+   * reason for every cycle.
+   */
+  reason: MintReason | `${MintReason}:${number}`;
   grants: Grant[];
   refTable?: string;
   /** Required for idempotency. Without it the same grant can land twice. */
@@ -41,7 +46,7 @@ export type MintResult = {
 const ROLLING_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 /** How many grants of this reason already landed in the rolling window. */
-async function priorCount(userId: string, reason: MintReason): Promise<number> {
+async function priorCount(userId: string, reason: string): Promise<number> {
   const supabase = createServiceSupabase();
   const since = new Date(Date.now() - ROLLING_WINDOW_MS).toISOString();
 
@@ -102,7 +107,7 @@ export async function mint(input: MintInput): Promise<MintResult> {
  */
 export async function spend(input: {
   userId: string;
-  reason: MintReason;
+  reason: MintReason | `${MintReason}:${number}`;
   cost: Partial<Record<ResourceKindDb, number>>;
   refTable?: string;
   refId?: string;
