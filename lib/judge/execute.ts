@@ -5,7 +5,7 @@ import { getRunner, JudgeUnavailableError } from "./index";
 import { getLanguage } from "./languages";
 import { statusFor, summarize, verdictFor, type CaseResult } from "./grade";
 import type { JudgeEvent, JudgeMode } from "./events";
-import type { ProblemRow, TestcaseRow, SubmissionStatus } from "@/lib/supabase/types";
+import type { ProblemRow, TestcaseRow } from "@/lib/supabase/types";
 import { solveGrants, REASONS } from "@/lib/economy/rules";
 import { mint, hasMintedSolve } from "@/lib/economy/mint";
 import { fingerprint } from "@/lib/integrity/fingerprint";
