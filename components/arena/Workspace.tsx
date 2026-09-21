@@ -79,6 +79,9 @@ export function Workspace({
   const [minted, setMinted] = useState<{ resource: string; amount: number }[]>([]);
   const [badges, setBadges] = useState<{ slug: string; name: string; rarity: string }[]>([]);
   const [rankUp, setRankUp] = useState<string | null>(null);
+  const [research, setResearch] = useState<
+    { slug: string; name: string; solvesDone: number; solvesRequired: number; mastered: boolean }[]
+  >([]);
 
   // Aggregates only. The keystroke stream itself is never recorded.
   const telemetry = useRef<EditorTelemetry>({
@@ -140,6 +143,7 @@ export function Workspace({
       setMinted([]);
       setBadges([]);
       setRankUp(null);
+      setResearch([]);
       setTab("tests");
 
       const expected = mode === "run" ? sampleCount : totalCount;
@@ -235,6 +239,7 @@ export function Workspace({
             setMinted(event.minted);
             setBadges(event.badges);
             setRankUp(event.rankUp);
+            setResearch(event.research);
             appendLog(
               `verdict · ${event.status} · ${event.passed}/${event.total} · ${event.runtimeMs}ms`,
             );
@@ -371,6 +376,17 @@ export function Workspace({
           {badges.map((badge) => (
             <Tag key={badge.slug} accent="ion">
               {badge.name}
+            </Tag>
+          ))}
+        </Panel>
+      ) : null}
+
+      {research.length > 0 ? (
+        <Panel variant="tinted" accent="signal" className="flex flex-wrap items-center gap-3 px-4 py-3">
+          <Label>Research</Label>
+          {research.map((node) => (
+            <Tag key={node.slug} accent={node.mastered ? "flux" : "signal"}>
+              {node.name} {node.mastered ? "mastered" : `${node.solvesDone}/${node.solvesRequired}`}
             </Tag>
           ))}
         </Panel>
