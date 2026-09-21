@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/Button";
 import { StatTile } from "@/components/ui/StatTile";
 import { Tag } from "@/components/ui/Tag";
 import { IconSwords, IconArrowRight } from "@/components/ui/Icon";
-import { enterMatchmaking, DUEL_MINUTES } from "@/lib/duel/actions";
+import { enterMatchmaking } from "@/lib/duel/actions";
+import { DUEL_MINUTES } from "@/lib/duel/config";
 import { createServerSupabase, getCurrentProfile } from "@/lib/supabase/server";
 import { hasRank } from "@/lib/progression/ranks";
 

@@ -8,6 +8,7 @@ import { mint } from "@/lib/economy/mint";
 import { duelWinGrants, duelLossGrants, eloDelta, REASONS } from "@/lib/economy/rules";
 import { hasRank } from "@/lib/progression/ranks";
 import { evaluateBadges } from "@/lib/progression/award";
+import { DUEL_MINUTES } from "./config";
 
 /**
  * Rated duels.
@@ -17,8 +18,6 @@ import { evaluateBadges } from "@/lib/progression/award";
  * settles it at K=32, and both ratings move inside the same server call that
  * writes the winner — so a disconnect cannot leave a duel half-scored.
  */
-
-export const DUEL_MINUTES = 20;
 
 export type DuelActionResult = { ok: boolean; message: string; duelId?: string };
 
