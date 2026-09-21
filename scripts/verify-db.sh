@@ -34,10 +34,25 @@ docker run -d --name "$CONTAINER" \
   -e POSTGRES_DB="$DB" \
   "$IMAGE" >/dev/null
 
-for _ in $(seq 1 60); do
-  if docker exec "$CONTAINER" pg_isready -U postgres >/dev/null 2>&1; then break; fi
+# The postgres entrypoint runs a temporary server during initdb, so pg_isready
+# can succeed before the real one is listening. Probe with an actual query, and
+# require two consecutive successes.
+ready=0
+for _ in $(seq 1 90); do
+  if docker exec "$CONTAINER" psql -U postgres -d "$DB" -c 'select 1' >/dev/null 2>&1; then
+    ready=$((ready + 1))
+    if [ "$ready" -ge 2 ]; then break; fi
+  else
+    ready=0
+  fi
   sleep 1
 done
+
+if [ "$ready" -lt 2 ]; then
+  echo "Postgres never became ready." >&2
+  docker logs "$CONTAINER" 2>&1 | tail -20 >&2
+  exit 1
+fi
 
 run_sql() {
   local label="$1" file="$2"
