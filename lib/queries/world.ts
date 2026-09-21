@@ -5,6 +5,9 @@ import { canUseServiceRole } from "@/lib/supabase/service";
 import { runUpkeepFor, advanceBuildQueue } from "@/lib/world/upkeep";
 import { toAccent, type Accent } from "@/lib/design/accents";
 import type { IsoTile, BuildingState } from "@/components/ui/IsoPlate";
+
+/** An IsoPlate tile that may also carry a forged skin blob. */
+export type WorldTile = IsoTile & { forgedParams?: unknown };
 import type { BlueprintRow, ProfileRow } from "@/lib/supabase/types";
 
 export type CityView = {
@@ -161,7 +164,7 @@ export type NationView = {
     foundedAt: string;
   };
   founder: { handle: string; displayName: string; avatarSeed: string } | null;
-  tiles: IsoTile[];
+  tiles: WorldTile[];
   citizens: Array<{ handle: string; displayName: string; avatarSeed: string; reputation: number }>;
   buildingCount: number;
   guestbook: Array<{ id: string; body: string; at: string; handle: string; avatarSeed: string }>;
@@ -189,7 +192,9 @@ export async function getNationView(slug: string): Promise<NationView | null> {
         .maybeSingle(),
       supabase
         .from("buildings")
-        .select("id,level,accent,state,window_density,parcels!inner(grid_x,grid_y,nation_id),blueprints(name)")
+        .select(
+          "id,level,accent,state,window_density,custom_item_id,parcels!inner(grid_x,grid_y,nation_id),blueprints(name),item_instances(params)",
+        )
         .eq("parcels.nation_id", nation.id),
       supabase
         .from("profiles")
@@ -215,13 +220,16 @@ export async function getNationView(slug: string): Promise<NationView | null> {
     accent: string;
     state: BuildingState;
     window_density: number;
+    custom_item_id: string | null;
     parcels: { grid_x: number; grid_y: number } | null;
     blueprints: { name: string } | null;
+    /** The forged skin applied to this building, when one is. */
+    item_instances: { params: unknown } | null;
   };
 
   const buildings = (buildingResult.data ?? []) as unknown as NationBuildingJoin[];
 
-  const tiles: IsoTile[] = buildings
+  const tiles: WorldTile[] = buildings
     .filter((row) => row.parcels !== null)
     .map((row) => ({
       x: (row.parcels?.grid_x ?? 0) % 6,
@@ -234,6 +242,9 @@ export async function getNationView(slug: string): Promise<NationView | null> {
         state: row.state,
         windowDensity: row.window_density,
       },
+      // A forged skin replaces the default body with <ForgedBuilding>, rendered
+      // by the page so this module stays free of JSX.
+      forgedParams: row.item_instances?.params ?? null,
     }));
 
   type GuestJoin = {
