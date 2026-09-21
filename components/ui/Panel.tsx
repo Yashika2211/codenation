@@ -12,6 +12,8 @@ type PanelProps = {
   /** Renders a hairline inner highlight along the top edge. */
   sheen?: boolean;
   as?: "div" | "section" | "article" | "aside" | "li" | "form";
+  /** Anchor target, for in-page links. */
+  id?: string;
 };
 
 /**
@@ -29,11 +31,13 @@ export function Panel({
   accent = "flux",
   sheen = false,
   as: Tag = "div",
+  id,
 }: PanelProps) {
   const tinted = variant === "tinted";
 
   return (
     <Tag
+      id={id}
       className={cn(
         "relative rounded-panel border",
         variant === "glass" && "border-line bg-glass",
