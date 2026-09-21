@@ -8,6 +8,8 @@ import type { JudgeEvent, JudgeMode } from "./events";
 import type { ProblemRow, TestcaseRow } from "@/lib/supabase/types";
 import { solveGrants, REASONS } from "@/lib/economy/rules";
 import { mint, hasMintedSolve } from "@/lib/economy/mint";
+import { evaluateBadges, type AwardedBadge } from "@/lib/progression/award";
+import { rankFor } from "@/lib/progression/ranks";
 import { fingerprint } from "@/lib/integrity/fingerprint";
 import { assessSubmission } from "@/lib/integrity/signals";
 
@@ -199,6 +201,8 @@ export async function* judge(request: JudgeRequest): AsyncGenerator<JudgeEvent> 
       memoryKb: totals.memoryKb,
       minted: [],
       firstSolver: false,
+      badges: [],
+      rankUp: null,
     };
     return;
   }
@@ -227,12 +231,21 @@ export async function* judge(request: JudgeRequest): AsyncGenerator<JudgeEvent> 
 
   let minted: { resource: string; amount: number }[] = [];
   let firstSolver = false;
+  let badges: AwardedBadge[] = [];
+  let rankUp: string | null = null;
 
   if (status === "accepted") {
     // Repeat solves mint nothing.
     const already = await hasMintedSolve(userId, problem.id);
     if (!already) {
       firstSolver = problem.first_solver_id === userId || problem.first_solver_id === null;
+
+      // Rank is read before and after, so crossing a threshold can be announced.
+      const { data: before } = await supabase
+        .from("profiles")
+        .select("reputation")
+        .eq("id", userId)
+        .maybeSingle();
 
       const result = await mint({
         userId,
@@ -243,6 +256,22 @@ export async function* judge(request: JudgeRequest): AsyncGenerator<JudgeEvent> 
       });
 
       minted = result.applied.map((g) => ({ resource: g.resource, amount: g.amount }));
+
+      const { data: after } = await supabase
+        .from("profiles")
+        .select("reputation")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (before && after) {
+        const from = rankFor(before.reputation);
+        const to = rankFor(after.reputation);
+        if (from.slug !== to.slug) rankUp = to.name;
+      }
+
+      // Section 5.4: re-evaluated for this user in the same request that
+      // earned it, rather than through a trigger and a notification.
+      badges = await evaluateBadges(userId);
 
       await supabase.from("activity_feed").insert({
         actor_id: userId,
@@ -263,6 +292,8 @@ export async function* judge(request: JudgeRequest): AsyncGenerator<JudgeEvent> 
     memoryKb: totals.memoryKb,
     minted,
     firstSolver,
+    badges,
+    rankUp,
   };
 }
 

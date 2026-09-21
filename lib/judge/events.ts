@@ -33,6 +33,10 @@ export type JudgeEvent =
       memoryKb: number | null;
       minted: { resource: string; amount: number }[];
       firstSolver: boolean;
+      /** Badges earned by this submission, evaluated in the same request. */
+      badges: { slug: string; name: string; rarity: string }[];
+      /** The new rank's name when this solve crossed a threshold. */
+      rankUp: string | null;
     }
   | { type: "error"; message: string };
 
