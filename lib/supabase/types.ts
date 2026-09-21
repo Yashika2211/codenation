@@ -38,6 +38,8 @@ export type AllianceRole = "speaker" | "member" | "probation";
 export type TradeStateDb = "open" | "accepted" | "declined" | "withdrawn" | "expired";
 export type FlagState = "watch" | "evidence" | "review" | "resolved";
 export type AppealState = "open" | "upheld" | "overturned" | "withdrawn";
+export type EventState = "draft" | "upcoming" | "live" | "judging" | "finished";
+export type EventBracket = "participant" | "track_finalist" | "finalist" | "winner";
 
 export type ProfileRow = {
   id: string;
@@ -381,6 +383,47 @@ export type AppealRow = {
   decided_at: string | null;
 };
 
+export type EventRow = {
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  description_md: string;
+  state: EventState;
+  tracks: Json;
+  prize: Json;
+  accent: string;
+  featured: boolean;
+  is_seed: boolean;
+  starts_at: string;
+  ends_at: string;
+  created_at: string;
+};
+
+export type EventEntryRow = {
+  event_id: string;
+  user_id: string;
+  track: string;
+  score: number;
+  placement: number | null;
+  bracket: EventBracket;
+  submission_url: string | null;
+  joined_at: string;
+};
+
+export type EventMatchRow = {
+  id: string;
+  event_id: string;
+  round: number;
+  slot: number;
+  player_a: string | null;
+  player_b: string | null;
+  winner_id: string | null;
+  score_a: number | null;
+  score_b: number | null;
+  created_at: string;
+};
+
 export type SubmissionFingerprintRow = {
   submission_id: string;
   problem_id: string;
@@ -466,6 +509,9 @@ export type Database = {
         SubmissionFingerprintRow,
         Insert<SubmissionFingerprintRow, "submission_id" | "problem_id" | "user_id">
       >;
+      events: Table<EventRow, Insert<EventRow, "slug" | "name" | "starts_at" | "ends_at">>;
+      event_entries: Table<EventEntryRow, Insert<EventEntryRow, "event_id" | "user_id">>;
+      event_matches: Table<EventMatchRow, Insert<EventMatchRow, "event_id" | "round" | "slot">>;
     };
     Views: {
       balances: {
@@ -498,6 +544,8 @@ export type Database = {
       trade_state: TradeStateDb;
       flag_state: FlagState;
       appeal_state: AppealState;
+      event_state: EventState;
+      event_bracket: EventBracket;
     };
     CompositeTypes: Record<never, never>;
   };
