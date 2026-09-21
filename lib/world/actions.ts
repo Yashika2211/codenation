@@ -8,6 +8,7 @@ import { REASONS } from "@/lib/economy/rules";
 import { hasRank, rankFor } from "@/lib/progression/ranks";
 import { toAccent } from "@/lib/design/accents";
 import { evaluateBadges } from "@/lib/progression/award";
+import { parcelAllowance, parcelCost } from "./allowance";
 
 /**
  * World mutations.
@@ -37,18 +38,6 @@ async function requireCaller(): Promise<Caller | null> {
 
   return profile ? { id: profile.id, reputation: profile.reputation } : null;
 }
-
-/** Parcels a player may hold, by rank. Engineer opens the first three. */
-export function parcelAllowance(reputation: number): number {
-  if (!hasRank(reputation, "engineer")) return 0;
-  if (!hasRank(reputation, "architect")) return 3;
-  if (!hasRank(reputation, "founder")) return 6;
-  if (!hasRank(reputation, "sovereign")) return 10;
-  if (!hasRank(reputation, "luminary")) return 16;
-  return 24;
-}
-
-const PARCEL_BASE_COST = 320;
 
 export async function claimParcel(formData: FormData): Promise<WorldActionResult> {
   if (!canUseServiceRole()) {
@@ -86,8 +75,7 @@ export async function claimParcel(formData: FormData): Promise<WorldActionResult
     };
   }
 
-  // Cost rises with holdings, so sprawl is a decision rather than a default.
-  const cost = PARCEL_BASE_COST * Math.max(1, (held ?? 0) + 1);
+  const cost = parcelCost(held ?? 0);
 
   const { data: existing } = await service
     .from("parcels")

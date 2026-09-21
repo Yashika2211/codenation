@@ -15,7 +15,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { BuildPanel } from "@/components/world/BuildPanel";
 import { IconArrowRight, IconClock, IconFlag } from "@/components/ui/Icon";
 import { getCityView } from "@/lib/queries/world";
-import { parcelAllowance } from "@/lib/world/actions";
+import { parcelAllowance } from "@/lib/world/allowance";
 import { getSessionUser } from "@/lib/supabase/server";
 import { rankFor, nextRankFor, rankProgress } from "@/lib/progression/ranks";
 import { ACCENT_HEX } from "@/lib/design/accents";

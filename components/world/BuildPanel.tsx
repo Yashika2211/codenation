@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Label } from "@/components/ui/Label";
 import { Tag } from "@/components/ui/Tag";
 import { claimParcel, startConstruction } from "@/lib/world/actions";
+import { parcelCost } from "@/lib/world/allowance";
 import { ACCENT_HEX, toAccent } from "@/lib/design/accents";
 import type { BlueprintRow } from "@/lib/supabase/types";
 
@@ -96,7 +97,7 @@ export function BuildPanel({
               {atAllowance ? "Allowance reached" : `Claim ${nextX},${nextY}`}
             </Button>
             <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-ghost">
-              {(320 * (parcels.length + 1)).toLocaleString("en-US")} cmp
+              {parcelCost(parcels.length).toLocaleString("en-US")} cmp
             </span>
           </form>
         )}
