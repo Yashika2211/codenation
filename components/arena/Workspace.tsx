@@ -77,6 +77,8 @@ export function Workspace({
   const [status, setStatus] = useState<SubmissionStatus | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [minted, setMinted] = useState<{ resource: string; amount: number }[]>([]);
+  const [badges, setBadges] = useState<{ slug: string; name: string; rarity: string }[]>([]);
+  const [rankUp, setRankUp] = useState<string | null>(null);
 
   // Aggregates only. The keystroke stream itself is never recorded.
   const telemetry = useRef<EditorTelemetry>({
@@ -136,6 +138,8 @@ export function Workspace({
       setStatus(null);
       setNotice(null);
       setMinted([]);
+      setBadges([]);
+      setRankUp(null);
       setTab("tests");
 
       const expected = mode === "run" ? sampleCount : totalCount;
@@ -229,6 +233,8 @@ export function Workspace({
           case "done":
             setStatus(event.status);
             setMinted(event.minted);
+            setBadges(event.badges);
+            setRankUp(event.rankUp);
             appendLog(
               `verdict · ${event.status} · ${event.passed}/${event.total} · ${event.runtimeMs}ms`,
             );
@@ -344,6 +350,29 @@ export function Workspace({
           <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-ghost">
             written to your ledger
           </span>
+        </Panel>
+      ) : null}
+
+      {rankUp ? (
+        <Panel variant="tinted" accent="amber" className="flex flex-wrap items-center gap-3 px-4 py-3">
+          <Label>Rank up</Label>
+          <span className="font-display text-[17px] font-extrabold tracking-[-0.02em] text-amber">
+            {rankUp}
+          </span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-ghost">
+            new capabilities unlocked
+          </span>
+        </Panel>
+      ) : null}
+
+      {badges.length > 0 ? (
+        <Panel variant="tinted" accent="ion" className="flex flex-wrap items-center gap-3 px-4 py-3">
+          <Label>Badge earned</Label>
+          {badges.map((badge) => (
+            <Tag key={badge.slug} accent="ion">
+              {badge.name}
+            </Tag>
+          ))}
         </Panel>
       ) : null}
 
