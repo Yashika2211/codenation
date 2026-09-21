@@ -10,7 +10,9 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Kicker, PageTitle, SectionTitle } from "@/components/ui/Label";
 import { StatTile } from "@/components/ui/StatTile";
 import { Tag } from "@/components/ui/Tag";
-import { IsoPlate } from "@/components/ui/IsoPlate";
+import { IsoPlate, type IsoTile } from "@/components/ui/IsoPlate";
+import { ForgedBuilding } from "@/components/forge/ForgedBuilding";
+import { ForgeParamsSchema } from "@/lib/forge/params";
 import { Marker } from "@/components/ui/Marker";
 import { Guestbook } from "@/components/world/Guestbook";
 import { IconSpark, IconUsers } from "@/components/ui/Icon";
@@ -19,6 +21,27 @@ import { getCurrentProfile } from "@/lib/supabase/server";
 import { ACCENT_HEX, accentRgba } from "@/lib/design/accents";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Swaps a forged skin in for the default building body. The same
+ * <ForgedBuilding> that drew the Forge preview draws it here, so what a player
+ * saw while crafting is exactly what stands in their country.
+ */
+function withForgedSkins(tiles: Array<IsoTile & { forgedParams?: unknown }>): IsoTile[] {
+  return tiles.map((tile) => {
+    const parsed = ForgeParamsSchema.safeParse(tile.forgedParams);
+    if (!parsed.success) return tile;
+
+    return {
+      ...tile,
+      content: (
+        <div className="absolute inset-[6%] flex items-end justify-center">
+          <ForgedBuilding params={parsed.data} height={46} />
+        </div>
+      ),
+    };
+  });
+}
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -180,7 +203,7 @@ export default async function NationPage({ params }: Params) {
                   top="6%"
                 />
                 <div className="mx-auto max-w-[620px] py-4">
-                  <IsoPlate size={6} tiles={tiles} />
+                  <IsoPlate size={6} tiles={withForgedSkins(tiles)} />
                 </div>
               </>
             )}
