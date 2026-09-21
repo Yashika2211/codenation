@@ -23,6 +23,11 @@ const config = [
       "no-console": ["warn", { allow: ["warn", "error"] }],
     },
   },
+  {
+    // These are command-line tools. Printing to stdout is their whole purpose.
+    files: ["scripts/**/*.ts"],
+    rules: { "no-console": "off" },
+  },
 ];
 
 export default config;
