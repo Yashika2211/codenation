@@ -37,6 +37,14 @@ export type JudgeEvent =
       badges: { slug: string; name: string; rarity: string }[];
       /** The new rank's name when this solve crossed a threshold. */
       rankUp: string | null;
+      /** Tech nodes this solve advanced, and whether any were mastered. */
+      research: {
+        slug: string;
+        name: string;
+        solvesDone: number;
+        solvesRequired: number;
+        mastered: boolean;
+      }[];
     }
   | { type: "error"; message: string };
 

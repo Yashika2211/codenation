@@ -9,6 +9,7 @@ import type { ProblemRow, TestcaseRow } from "@/lib/supabase/types";
 import { solveGrants, REASONS } from "@/lib/economy/rules";
 import { mint, hasMintedSolve } from "@/lib/economy/mint";
 import { evaluateBadges, type AwardedBadge } from "@/lib/progression/award";
+import { creditSolveToResearch, type ResearchAdvance } from "@/lib/progression/tech";
 import { rankFor } from "@/lib/progression/ranks";
 import { fingerprint } from "@/lib/integrity/fingerprint";
 import { assessSubmission } from "@/lib/integrity/signals";
@@ -203,6 +204,7 @@ export async function* judge(request: JudgeRequest): AsyncGenerator<JudgeEvent> 
       firstSolver: false,
       badges: [],
       rankUp: null,
+      research: [],
     };
     return;
   }
@@ -233,6 +235,7 @@ export async function* judge(request: JudgeRequest): AsyncGenerator<JudgeEvent> 
   let firstSolver = false;
   let badges: AwardedBadge[] = [];
   let rankUp: string | null = null;
+  let research: ResearchAdvance[] = [];
 
   if (status === "accepted") {
     // Repeat solves mint nothing.
@@ -269,6 +272,10 @@ export async function* judge(request: JudgeRequest): AsyncGenerator<JudgeEvent> 
         if (from.slug !== to.slug) rankUp = to.name;
       }
 
+      // Research advances by solving, so the credit belongs here — in the
+      // same transaction as the solve that earned it.
+      research = await creditSolveToResearch(userId, problem.topics ?? []);
+
       // Section 5.4: re-evaluated for this user in the same request that
       // earned it, rather than through a trigger and a notification.
       badges = await evaluateBadges(userId);
@@ -294,6 +301,7 @@ export async function* judge(request: JudgeRequest): AsyncGenerator<JudgeEvent> 
     firstSolver,
     badges,
     rankUp,
+    research,
   };
 }
 
