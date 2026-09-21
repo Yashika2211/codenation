@@ -36,6 +36,19 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      # Every seeded problem's expected output is checked against a working
+      # reference solution. A wrong expectation ships an unsolvable problem.
+      - name: Verify seed data
+        run: pnpm verify:seed
+
+      - name: Verify seed cross-references
+        run: pnpm verify:refs
+
+      # Applies every migration, the seed twice, and the invariant suite to a
+      # real Postgres. RLS policies and triggers cannot be typechecked.
+      - name: Verify database schema and invariants
+        run: pnpm verify:db
+
       - name: Build
         run: pnpm build
         env:
