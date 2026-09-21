@@ -15,6 +15,7 @@ import {
   noiseFromSeed,
   type ForgeParams,
 } from "./params";
+import { currentSeason } from "./season";
 import type { RarityDb } from "@/lib/supabase/types";
 
 /**
@@ -36,13 +37,6 @@ import type { RarityDb } from "@/lib/supabase/types";
 export type CraftResult =
   | { ok: true; message: string; serial: number; itemId: string }
   | { ok: false; message: string; issues?: Array<{ field: string; message: string }> };
-
-/** Season index. Rolls over quarterly, which is what prestige decay tracks. */
-export function currentSeason(now = new Date()): number {
-  const year = now.getUTCFullYear();
-  const quarter = Math.floor(now.getUTCMonth() / 3) + 1;
-  return (year - 2026) * 4 + quarter;
-}
 
 export async function craftItem(input: {
   definitionSlug: string;
