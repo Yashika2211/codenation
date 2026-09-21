@@ -7,7 +7,7 @@ import { MobileTabs } from "@/components/ui/MobileTabs";
 import { Footer } from "@/components/ui/Footer";
 import { Panel } from "@/components/ui/Panel";
 import { Avatar } from "@/components/ui/Avatar";
-import { Label, Kicker, PageTitle, SectionTitle } from "@/components/ui/Label";
+import { Kicker, PageTitle, SectionTitle } from "@/components/ui/Label";
 import { StatTile } from "@/components/ui/StatTile";
 import { Tag } from "@/components/ui/Tag";
 import { IsoPlate } from "@/components/ui/IsoPlate";
