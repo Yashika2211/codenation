@@ -3,7 +3,8 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
-import { CodeEditor, type EditorTelemetry } from "./CodeEditor";
+import dynamic from "next/dynamic";
+import type { EditorTelemetry } from "./CodeEditor";
 import { TestPanel, type CaseView } from "./TestPanel";
 import { Panel } from "@/components/ui/Panel";
 import { Button } from "@/components/ui/Button";
@@ -14,6 +15,22 @@ import { LANGUAGES, type LanguageId } from "@/lib/judge/languages";
 import { readJudgeStream, type JudgeEvent } from "@/lib/judge/events";
 import { STATUS_LABEL } from "@/lib/judge/grade";
 import type { SubmissionStatus } from "@/lib/supabase/types";
+
+/**
+ * CodeMirror and its seven language parsers are ~260kB. Loading them after
+ * hydration keeps the statement readable immediately instead of blocking on a
+ * bundle the reader may never type into.
+ */
+const CodeEditor = dynamic(() => import("./CodeEditor").then((m) => m.CodeEditor), {
+  ssr: false,
+  loading: () => (
+    <div className="grid h-full min-h-[340px] place-items-center">
+      <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ghost">
+        loading editor
+      </span>
+    </div>
+  ),
+});
 
 type WorkspaceProps = {
   problemSlug: string;
