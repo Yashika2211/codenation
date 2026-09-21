@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "seed": "tsx scripts/seed.ts",
-    "check": "pnpm typecheck && pnpm lint && pnpm build"
+    "check": "pnpm typecheck && pnpm lint && pnpm verify:seed && pnpm build",
+    "verify:seed": "tsx scripts/verify-seed.ts"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.3",
