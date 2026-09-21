@@ -28,12 +28,20 @@ export type EventView = {
   entrants: number;
 };
 
+export type BracketSeat = {
+  /** The profile id, which is what `winnerId` is compared against. */
+  id: string;
+  handle: string;
+  displayName: string;
+  avatarSeed: string;
+};
+
 export type BracketMatch = {
   id: string;
   round: number;
   slot: number;
-  a: { handle: string; displayName: string; avatarSeed: string } | null;
-  b: { handle: string; displayName: string; avatarSeed: string } | null;
+  a: BracketSeat | null;
+  b: BracketSeat | null;
   winnerId: string | null;
   scoreA: number | null;
   scoreB: number | null;
@@ -168,7 +176,7 @@ export async function getEventsView(viewerId: string | null): Promise<EventsView
       supabase
         .from("event_matches")
         .select(
-          "id,round,slot,winner_id,score_a,score_b,a:player_a(handle,display_name,avatar_seed),b:player_b(handle,display_name,avatar_seed)",
+          "id,round,slot,winner_id,score_a,score_b,a:player_a(id,handle,display_name,avatar_seed),b:player_b(id,handle,display_name,avatar_seed)",
         )
         .eq("event_id", featured.id)
         .order("round", { ascending: false })
@@ -188,8 +196,8 @@ export async function getEventsView(viewerId: string | null): Promise<EventsView
       winner_id: string | null;
       score_a: number | null;
       score_b: number | null;
-      a: { handle: string; display_name: string; avatar_seed: string } | null;
-      b: { handle: string; display_name: string; avatar_seed: string } | null;
+      a: { id: string; handle: string; display_name: string; avatar_seed: string } | null;
+      b: { id: string; handle: string; display_name: string; avatar_seed: string } | null;
     };
 
     bracket = ((matchResult.data ?? []) as unknown as MatchJoin[]).map((row) => ({
@@ -197,10 +205,20 @@ export async function getEventsView(viewerId: string | null): Promise<EventsView
       round: row.round,
       slot: row.slot,
       a: row.a
-        ? { handle: row.a.handle, displayName: row.a.display_name, avatarSeed: row.a.avatar_seed }
+        ? {
+            id: row.a.id,
+            handle: row.a.handle,
+            displayName: row.a.display_name,
+            avatarSeed: row.a.avatar_seed,
+          }
         : null,
       b: row.b
-        ? { handle: row.b.handle, displayName: row.b.display_name, avatarSeed: row.b.avatar_seed }
+        ? {
+            id: row.b.id,
+            handle: row.b.handle,
+            displayName: row.b.display_name,
+            avatarSeed: row.b.avatar_seed,
+          }
         : null,
       winnerId: row.winner_id,
       scoreA: row.score_a,
