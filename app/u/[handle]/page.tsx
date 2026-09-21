@@ -15,6 +15,8 @@ import { Heatmap } from "@/components/ui/Heatmap";
 import { SkillRadar } from "@/components/ui/SkillRadar";
 import { ResourceChip } from "@/components/ui/ResourceChip";
 import { IconGithub, IconFlag, IconSpark } from "@/components/ui/Icon";
+import { ForgedBuilding } from "@/components/forge/ForgedBuilding";
+import { ForgeParamsSchema } from "@/lib/forge/params";
 import { ACCENT_HEX, toAccent } from "@/lib/design/accents";
 import { rankFor, nextRankFor, rankProgress } from "@/lib/progression/ranks";
 import { getProfileByHandle } from "@/lib/queries/profile";
@@ -281,22 +283,31 @@ export default async function ProfilePage({ params }: Params) {
             </Panel>
           ) : (
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {items.map((item) => (
-                <Panel key={item.id} className="p-5">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-display text-[15px] font-extrabold tracking-[-0.02em]">
-                      {item.definition.name}
-                    </h3>
-                    <RarityTag rarity={item.definition.rarity as Rarity} />
-                  </div>
-                  <p className="mt-3 font-mono text-[11px] tabular-nums text-flux">
-                    #{String(item.serial).padStart(3, "0")}
-                  </p>
-                  <p className="mt-1 font-mono text-[9.5px] uppercase tracking-[0.16em] text-ghost">
-                    {item.definition.kind.replace(/_/g, " ")}
-                  </p>
-                </Panel>
-              ))}
+              {items.map((item) => {
+                const parsed = ForgeParamsSchema.safeParse(item.params);
+                return (
+                  <Panel key={item.id} className="p-5">
+                    {parsed.success ? (
+                      <div className="grid min-h-[140px] place-items-end justify-center pb-3">
+                        <ForgedBuilding params={parsed.data} height={104} />
+                      </div>
+                    ) : null}
+
+                    <div className="flex items-start justify-between gap-2 border-t border-line pt-3">
+                      <h3 className="font-display text-[15px] font-extrabold tracking-[-0.02em]">
+                        {item.definition.name}
+                      </h3>
+                      <RarityTag rarity={item.definition.rarity as Rarity} />
+                    </div>
+                    <p className="mt-3 font-mono text-[11px] tabular-nums text-flux">
+                      #{String(item.serial).padStart(3, "0")}
+                    </p>
+                    <p className="mt-1 font-mono text-[9.5px] uppercase tracking-[0.16em] text-ghost">
+                      {item.definition.kind.replace(/_/g, " ")}
+                    </p>
+                  </Panel>
+                );
+              })}
             </div>
           )}
         </section>
