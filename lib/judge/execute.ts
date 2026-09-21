@@ -4,6 +4,7 @@ import { createServiceSupabase } from "@/lib/supabase/service";
 import { getRunner, JudgeUnavailableError } from "./index";
 import { getLanguage } from "./languages";
 import { statusFor, summarize, verdictFor, type CaseResult } from "./grade";
+import type { JudgeEvent, JudgeMode } from "./events";
 import type { ProblemRow, TestcaseRow, SubmissionStatus } from "@/lib/supabase/types";
 import { solveGrants, REASONS } from "@/lib/economy/rules";
 import { mint, hasMintedSolve } from "@/lib/economy/mint";
@@ -19,32 +20,7 @@ import { assessSubmission } from "@/lib/integrity/signals";
  * final `accepted` status, keyed on the submission id.
  */
 
-export type JudgeEvent =
-  | { type: "meta"; submissionId: string | null; total: number; mode: JudgeMode }
-  | {
-      type: "case";
-      ordinal: number;
-      verdict: CaseResult["verdict"];
-      runtimeMs: number;
-      memoryKb: number | null;
-      input?: string;
-      expected?: string;
-      stdout?: string;
-      stderr?: string;
-    }
-  | {
-      type: "done";
-      status: SubmissionStatus;
-      passed: number;
-      total: number;
-      runtimeMs: number;
-      memoryKb: number | null;
-      minted: { resource: string; amount: number }[];
-      firstSolver: boolean;
-    }
-  | { type: "error"; message: string };
-
-export type JudgeMode = "run" | "submit";
+export type { JudgeEvent, JudgeMode } from "./events";
 
 export type JudgeRequest = {
   userId: string | null;
