@@ -60,18 +60,29 @@ export function TopNav({ user, wallet, reputation }: TopNavProps) {
             <div className="hidden items-center gap-[6px] md:flex">
               <ResourceChip resource="compute" value={wallet.compute} />
               <ResourceChip resource="data" value={wallet.data} />
-              <ResourceChip resource="alloy" value={wallet.alloy} className="hidden xl:inline-flex" />
+              <span className="hidden xl:inline-flex">
+                <ResourceChip resource="alloy" value={wallet.alloy} />
+              </span>
             </div>
           ) : null}
 
+          {/*
+            Wrapped rather than passing `hidden` to the chip: the chip's own
+            `inline-flex` and a `hidden` utility are both display declarations,
+            and which one wins depends on their order in the generated
+            stylesheet, not on the order in the class attribute. The chip was
+            staying visible at 390px and pushing the whole document wider.
+          */}
           {typeof reputation === "number" ? (
-            <ResourceChip resource="rep" value={reputation} className="hidden sm:inline-flex" />
+            <span className="hidden sm:inline-flex">
+              <ResourceChip resource="rep" value={reputation} />
+            </span>
           ) : null}
 
           {user ? (
             <Link
               href={`/u/${user.handle}`}
-              className="rounded-[9px] transition-opacity hover:opacity-85"
+              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[9px] transition-opacity hover:opacity-85"
               aria-label={`Your profile, ${user.displayName}`}
             >
               <Avatar seed={user.avatarSeed} name={user.displayName} size="sm" />
