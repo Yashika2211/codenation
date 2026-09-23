@@ -10,6 +10,14 @@
  * rather than dropped, so the atlas never silently loses a nation.
  */
 
+/**
+ * The atlas viewBox. These live here rather than with the query, because they
+ * are a property of the projection — and because the query module is
+ * `server-only`, which makes them unusable from a test or a client component.
+ */
+export const ATLAS_WIDTH = 1000;
+export const ATLAS_HEIGHT = 560;
+
 export type LatLong = { lat: number; lon: number };
 
 export const COUNTRY_CENTROIDS: Record<string, LatLong> = {

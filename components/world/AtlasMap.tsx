@@ -1,12 +1,7 @@
 import Link from "next/link";
 import { ACCENT_HEX, accentRgba } from "@/lib/design/accents";
-import { arcPath } from "@/lib/world/geo";
-import {
-  ATLAS_WIDTH,
-  ATLAS_HEIGHT,
-  type AtlasNation,
-  type AtlasRoute,
-} from "@/lib/queries/atlas";
+import { arcPath, ATLAS_WIDTH, ATLAS_HEIGHT } from "@/lib/world/geo";
+import type { AtlasNation, AtlasRoute } from "@/lib/queries/atlas";
 
 /**
  * The orbital map.

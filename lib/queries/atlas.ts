@@ -2,10 +2,17 @@ import "server-only";
 
 import { createServerSupabase } from "@/lib/supabase/server";
 import { toAccent, type Accent } from "@/lib/design/accents";
-import { centroidFor, project, deconflict, type Projected } from "@/lib/world/geo";
+import {
+  centroidFor,
+  project,
+  deconflict,
+  ATLAS_WIDTH,
+  ATLAS_HEIGHT,
+  type Projected,
+} from "@/lib/world/geo";
 
-export const ATLAS_WIDTH = 1000;
-export const ATLAS_HEIGHT = 560;
+// Re-exported so existing importers keep working.
+export { ATLAS_WIDTH, ATLAS_HEIGHT };
 
 export type AtlasNation = {
   id: string;
