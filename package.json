@@ -11,11 +11,12 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "seed": "tsx scripts/seed.ts",
-    "check": "pnpm typecheck && pnpm lint && pnpm verify:seed && pnpm verify:refs && pnpm build",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm verify:seed && pnpm verify:refs && pnpm build",
     "verify:seed": "tsx scripts/verify-seed.ts",
     "verify:refs": "tsx scripts/verify-refs.ts",
     "seed:sql": "pnpm verify:seed && pnpm verify:refs && tsx scripts/generate-seed.ts",
-    "verify:db": "bash scripts/verify-db.sh"
+    "verify:db": "bash scripts/verify-db.sh",
+    "test": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.3",
