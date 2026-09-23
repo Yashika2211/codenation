@@ -138,7 +138,10 @@ export async function getAlliance(slug: string): Promise<AllianceView | null> {
   const { data: tradeRows } = await supabase
     .from("trades")
     .select(
-      "id,offer,want,state,note,created_at,from:from_nation(slug,name),to:to_nation(slug,name)",
+      // trades points at nations twice, so both embeds name their constraint.
+      "id,offer,want,state,note,created_at," +
+        "from:nations!trades_from_nation_fkey(slug,name)," +
+        "to:nations!trades_to_nation_fkey(slug,name)",
     )
     .order("created_at", { ascending: false })
     .limit(40);

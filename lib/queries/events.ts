@@ -176,7 +176,11 @@ export async function getEventsView(viewerId: string | null): Promise<EventsView
       supabase
         .from("event_matches")
         .select(
-          "id,round,slot,winner_id,score_a,score_b,a:player_a(id,handle,display_name,avatar_seed),b:player_b(id,handle,display_name,avatar_seed)",
+          // event_matches has three foreign keys to profiles, so each embed
+          // names its constraint rather than relying on inference.
+          "id,round,slot,winner_id,score_a,score_b," +
+            "a:profiles!event_matches_player_a_fkey(id,handle,display_name,avatar_seed)," +
+            "b:profiles!event_matches_player_b_fkey(id,handle,display_name,avatar_seed)",
         )
         .eq("event_id", featured.id)
         .order("round", { ascending: false })
