@@ -36,6 +36,12 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      # The rules of the game: economy, grading, fingerprints, rank gates,
+      # Forge gates and atlas projection. A silent change to any of these
+      # re-tunes every player's progression at once.
+      - name: Unit tests
+        run: pnpm test
+
       # Every seeded problem's expected output is checked against a working
       # reference solution. A wrong expectation ships an unsolvable problem.
       - name: Verify seed data
