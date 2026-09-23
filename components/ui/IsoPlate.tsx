@@ -59,11 +59,19 @@ export function IsoPlate({ size, tiles, className, gap = 9, rotate = 45 }: IsoPl
   }
 
   return (
-    <div className={cn("relative w-full", className)} style={{ perspective: "1400px" }}>
+    <div
+      className={cn(
+        // A square rotated 45deg needs sqrt(2) times its width to avoid
+        // clipping, so the plate is scaled down until the viewport can hold it.
+        "relative w-full [--iso-scale:0.68] sm:[--iso-scale:0.82] lg:[--iso-scale:1]",
+        className,
+      )}
+      style={{ perspective: "1400px" }}
+    >
       <div
         className="grid aspect-square w-full"
         style={{
-          transform: `perspective(1400px) rotateX(57deg) rotateZ(${rotate}deg)`,
+          transform: `perspective(1400px) rotateX(57deg) rotateZ(${rotate}deg) scale(var(--iso-scale))`,
           transformStyle: "preserve-3d",
           gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
           gap,
