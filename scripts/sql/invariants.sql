@@ -205,6 +205,62 @@ begin
   if n > 0 then raise exception '% craftable items sit below 3000 rep', n; end if;
 end $$;
 
+-- 12. A craft is atomic: serials are unique under concurrency, and a craft
+-- that cannot be paid for changes nothing. Before migration 0012 the serial was
+-- allocated in its own transaction, so two concurrent crafts could be handed the
+-- same one and the loser paid for an insert that then failed.
+do $$
+declare
+  v_def       uuid;
+  v_user      uuid := '11111111-1111-1111-1111-111111111111';
+  v_serials   int;
+  v_rows      int;
+  v_before    bigint;
+  v_after     bigint;
+begin
+  select id into v_def from public.item_definitions where craftable = true limit 1;
+  if v_def is null then return; end if;
+
+  insert into public.resource_ledger (user_id, resource, delta, reason)
+  values (v_user, 'compute', 100000, 'invariant-fund'),
+         (v_user, 'data', 100000, 'invariant-fund'),
+         (v_user, 'alloy', 100000, 'invariant-fund');
+
+  -- Sequential here; the concurrent case is exercised by scripts/verify-db.sh.
+  -- What this asserts is that each craft takes the next serial and pays once.
+  perform public.forge_item(v_user, v_def, '{"rarity":"rare"}'::jsonb, 'inv-a', 1, 10, 5, 1);
+  perform public.forge_item(v_user, v_def, '{"rarity":"rare"}'::jsonb, 'inv-b', 1, 10, 5, 1);
+
+  select count(*), count(distinct serial) into v_rows, v_serials
+  from public.item_instances where definition_id = v_def and owner_id = v_user;
+
+  if v_rows <> v_serials then
+    raise exception 'forge issued a duplicate serial (% rows, % distinct)', v_rows, v_serials;
+  end if;
+
+  if not exists (
+    select 1 from public.inventory i
+    join public.item_instances ii on ii.id = i.item_instance_id
+    where i.user_id = v_user and ii.definition_id = v_def
+  ) then
+    raise exception 'forge did not add the item to inventory';
+  end if;
+
+  -- A craft that cannot be paid for must leave nothing behind.
+  select compute into v_before from public.wallets where user_id = v_user;
+  begin
+    perform public.forge_item(v_user, v_def, '{"rarity":"rare"}'::jsonb, 'inv-c', 1, 10, 5, 99999999);
+    raise exception 'forge allowed an unaffordable craft';
+  exception when others then
+    if sqlerrm like '%allowed an unaffordable%' then raise; end if;
+  end;
+
+  select compute into v_after from public.wallets where user_id = v_user;
+  if v_before is distinct from v_after then
+    raise exception 'a failed craft moved the wallet (% -> %)', v_before, v_after;
+  end if;
+end $$;
+
 -- 11. An account with ledger history can actually be deleted. Before
 -- migration 0010 this raised "resource_ledger is append-only" and a user who
 -- asked to be removed could not be.
