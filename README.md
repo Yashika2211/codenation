@@ -65,13 +65,14 @@ pnpm seed                                 # synthetic citizens, nations, cities
 | `pnpm verify:seed` | Runs every seeded problem's reference solution against its cases |
 | `pnpm verify:refs` | Checks every tech / blueprint / item cross-reference resolves |
 | `pnpm verify:db` | Applies migrations + seed + invariants to a throwaway Postgres |
+| `pnpm check:responsive` | Walks every route at 390 / 768 / 1440px in a real browser |
 | `pnpm seed:sql` | Regenerates `supabase/seed.sql` from `scripts/data/` |
 | `pnpm seed` | Seeds the generated world |
 | `pnpm check` | Everything CI runs |
 
 ## Verification
 
-Four things here cannot be typechecked, so each has a real test:
+Five things here cannot be typechecked, so each has a real test:
 
 - **The rules of the game.** 106 unit tests (`pnpm test`) pin the economy, grading, fingerprints,
   rank gates, Forge gates and atlas projection to the values the spec states — not to whatever
@@ -92,7 +93,15 @@ Four things here cannot be typechecked, so each has a real test:
   test cases, and cannot insert into the ledger. It found a real bug: account deletion was
   impossible because the ledger's append-only trigger blocked the cascade.
 
-All three run in CI on every push.
+- **Responsive and touch.** The spec says *"everything must work at 390px wide"*, which is not
+  something you can eyeball reliably. `check:responsive` drives a real browser over every public
+  route at three widths and fails on horizontal scroll, any element past the viewport edge, touch
+  targets under 44px, or a console error. It found 47 issues on its first run — including genuine
+  horizontal scrolling caused by a `hidden` utility losing to a component's own `inline-flex`,
+  which is decided by stylesheet order rather than class order.
+
+The first four run in CI on every push; the responsive audit needs a running server, so it is a
+local gate before deploying.
 
 ## Layout
 
