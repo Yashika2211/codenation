@@ -147,15 +147,6 @@ export async function craftItem(input: {
   const base = (definition.cost ?? {}) as { compute?: number; data?: number; alloy?: number };
   const cost = costFor(base, rarity);
 
-  // Allocate the serial before spending, so a failed serial cannot burn resources.
-  const { data: serial, error: serialError } = await service.rpc("next_item_serial", {
-    p_definition: definition.id,
-  });
-
-  if (serialError || typeof serial !== "number") {
-    return { ok: false, message: "Could not allocate a serial." };
-  }
-
   const seed = randomBytes(8).toString("hex");
   const stored: ForgeParams & { rarity: RarityDb } = {
     ...params,
@@ -164,50 +155,47 @@ export async function craftItem(input: {
     rarity,
   };
 
-  const payment = await spend({
-    userId: profile.id,
-    reason: REASONS.forge,
-    cost,
-    refTable: "item_definitions",
-  });
-
-  if (!payment.ok) {
-    return {
-      ok: false,
-      message: `Not enough ${payment.missing.join(" and ")}. This costs ${cost.compute} compute, ${cost.data} data, ${cost.alloy} alloy.`,
-    };
-  }
-
-  // --- rule 5: mint the instance -------------------------------------------
-  const { data: instance, error: insertError } = await service
-    .from("item_instances")
-    .insert({
-      definition_id: definition.id,
-      owner_id: profile.id,
-      params: stored,
-      seed,
-      serial,
-      // Rule 6: crafted items are bound.
-      bound: true,
-      season,
+  // --- rule 5: one transaction -------------------------------------------
+  //
+  // Serial allocation, the wallet check, the debits, the instance and the
+  // inventory row all happen inside `forge_item`. Doing it in separate round
+  // trips used to let two concurrent crafts claim the same serial, and the
+  // loser paid for nothing. Now a failure rolls the whole thing back.
+  const { data: forged, error: forgeError } = await service
+    .rpc("forge_item", {
+      p_user: profile.id,
+      p_definition: definition.id,
+      p_params: stored,
+      p_seed: seed,
+      p_season: season,
+      p_cost_compute: cost.compute,
+      p_cost_data: cost.data,
+      p_cost_alloy: cost.alloy,
     })
-    .select("id,serial")
     .single();
 
-  if (insertError || !instance) {
-    // The partial unique index is the real mythic guard; losing the race here
+  if (forgeError || !forged) {
+    const message = forgeError?.message ?? "";
+
+    if (message.includes("insufficient")) {
+      const missing = message.replace("insufficient", "").trim();
+      return {
+        ok: false,
+        message: `Not enough ${missing}. This costs ${cost.compute} compute, ${cost.data} data, ${cost.alloy} alloy.`,
+      };
+    }
+
+    // The partial unique index is the real mythic guard; losing that race here
     // is correct behaviour, not a failure of the check above.
-    if (insertError?.code === "23505") {
+    if (forgeError?.code === "23505") {
       return { ok: false, message: "You have already forged a mythic item this season." };
     }
-    return { ok: false, message: "The forge failed. Your resources were spent on the attempt." };
+
+    return { ok: false, message: "The forge could not complete. Nothing was spent." };
   }
 
-  await service.from("inventory").insert({
-    user_id: profile.id,
-    item_instance_id: instance.id,
-    source: "forge",
-  });
+  const instance = { id: forged.item_id, serial: forged.item_serial };
+
 
   await service.from("activity_feed").insert({
     actor_id: profile.id,
