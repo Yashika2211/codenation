@@ -142,23 +142,60 @@ export const MOTIF_REQUIREMENT: Record<string, RarityDb> = {
  * It is a blocklist, not a claim of completeness: inscriptions are public and
  * attributed, and anything that slips through is reportable like any other
  * content. Pretending a regex solves moderation would be the dishonest move.
+ *
+ * Two things it does try to get right:
+ *
+ *   - Letter-spacing and leetspeak evasion ("F U C K", "sh1t", "$hit") are
+ *     caught, by also matching against the text with separators removed.
+ *   - Innocent words that merely contain a blocked substring are NOT caught.
+ *     "Scunthorpe" is the canonical example, and a filter that blocks it is
+ *     worse than one that misses the occasional insult. Matching is anchored to
+ *     a word start, with a trailing wildcard so inflections still hit.
  */
 const BLOCKED = [
   "fuck", "shit", "cunt", "bitch", "bastard", "slut", "whore", "nigger", "faggot",
   "rape", "nazi", "kill yourself", "kys",
 ];
 
-export function inscriptionIsAllowed(value: string): boolean {
-  const normalised = value
+function normaliseInscription(value: string): { spaced: string; tight: string } {
+  const spaced = value
     .toLowerCase()
     // Collapse common letter substitutions before matching.
     .replace(/[0@]/g, "o")
     .replace(/[1!|]/g, "i")
     .replace(/3/g, "e")
+    .replace(/4/g, "a")
+    .replace(/5/g, "s")
+    .replace(/7/g, "t")
     .replace(/\$/g, "s")
-    .replace(/[^a-z ]/g, "");
+    .replace(/[^a-z\s]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  return !BLOCKED.some((word) => normalised.includes(word));
+  // Separators removed, so "f u c k" and "f.u.c.k" both reduce to "fuck".
+  return { spaced, tight: spaced.replace(/\s+/g, "") };
+}
+
+export function inscriptionIsAllowed(value: string): boolean {
+  if (value.trim().length === 0) return true;
+
+  const { spaced, tight } = normaliseInscription(value);
+
+  for (const term of BLOCKED) {
+    // A multi-word term only makes sense against the spaced form.
+    if (term.includes(" ")) {
+      if (spaced.includes(term)) return false;
+      if (tight.includes(term.replace(/ /g, ""))) return false;
+      continue;
+    }
+
+    // Anchored to a word start, with a trailing wildcard for inflections.
+    // This catches "fucking" without catching "Scunthorpe".
+    const pattern = new RegExp(`\\b${term}\\w*`);
+    if (pattern.test(spaced) || pattern.test(tight)) return false;
+  }
+
+  return true;
 }
 
 export type ValidationIssue = { field: string; message: string };
