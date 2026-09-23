@@ -1,26 +1,44 @@
 import type { Metadata, Viewport } from "next";
-import { Syne, Manrope, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const syne = Syne({
-  subsets: ["latin"],
-  weight: ["700", "800"],
+/**
+ * Fonts are self-hosted rather than fetched through `next/font/google`.
+ *
+ * The Google loader resolves over the network *at build time*, and a failed or
+ * unexpected response there fails the whole build — which is exactly what
+ * happened in CI. Shipping the woff2 files makes the build deterministic and
+ * offline-capable, and drops a third-party request at runtime.
+ *
+ * These are the variable cuts, so one file covers every weight the design
+ * system uses.
+ */
+
+const syne = localFont({
+  src: "./fonts/Syne-Variable.woff2",
+  weight: "700 800",
+  style: "normal",
   variable: "--font-syne",
   display: "swap",
+  preload: true,
 });
 
-const manrope = Manrope({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+const manrope = localFont({
+  src: "./fonts/Manrope-Variable.woff2",
+  weight: "400 800",
+  style: "normal",
   variable: "--font-manrope",
   display: "swap",
+  preload: true,
 });
 
-const jetbrains = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
+const jetbrains = localFont({
+  src: "./fonts/JetBrainsMono-Variable.woff2",
+  weight: "400 700",
+  style: "normal",
   variable: "--font-jetbrains",
   display: "swap",
+  preload: true,
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";

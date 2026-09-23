@@ -46,3 +46,6 @@ supabase/.env
 coverage/
 playwright-report/
 test-results/
+
+# self-hosted fonts are intentionally committed (see app/layout.tsx)
+!app/fonts/*.woff2
