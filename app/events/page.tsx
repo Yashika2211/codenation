@@ -92,7 +92,7 @@ export default async function EventsPage() {
             </p>
             <Link
               href="/arena"
-              className="mt-6 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-flux transition-colors hover:text-text"
+              className="mt-6 inline-flex min-h-[44px] items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-flux transition-colors hover:text-text"
             >
               Practise in the Arena
               <IconArrowRight size={12} />
@@ -265,7 +265,7 @@ export default async function EventsPage() {
                   </p>
                   <Link
                     href={viewer ? `/u/${viewer.handle}` : "/signin"}
-                    className="mt-3 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-signal transition-colors hover:text-text"
+                    className="mt-3 inline-flex min-h-[44px] items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-signal transition-colors hover:text-text"
                   >
                     See your badges
                     <IconArrowRight size={12} />

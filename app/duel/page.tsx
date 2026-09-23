@@ -232,7 +232,7 @@ export default async function DuelLobbyPage({
 
         <Link
           href="/arena"
-          className="mt-10 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ghost transition-colors hover:text-flux"
+          className="mt-10 inline-flex min-h-[44px] items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ghost transition-colors hover:text-flux"
         >
           Back to the Arena
           <IconArrowRight size={12} />

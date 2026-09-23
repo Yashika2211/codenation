@@ -80,7 +80,7 @@ export function TechTree({ nodes, branches }: { nodes: TechNodeView[]; branches:
               }}
               aria-current={branch === name ? "true" : undefined}
               className={cn(
-                "inline-flex min-h-[40px] items-center rounded-chip border px-[14px] font-mono text-[10.5px] uppercase tracking-[0.14em] transition-colors",
+                "inline-flex min-h-[44px] items-center rounded-chip border px-[14px] font-mono text-[10.5px] uppercase tracking-[0.14em] transition-colors",
                 branch === name
                   ? "border-[rgb(59_232_176/0.38)] bg-[rgb(59_232_176/0.12)] text-flux"
                   : "border-line text-dim hover:bg-glass hover:text-text",

@@ -100,7 +100,7 @@ export default async function SignInPage({
 
         <Link
           href="/"
-          className="mt-6 self-center font-mono text-[10px] uppercase tracking-[0.18em] text-ghost transition-colors hover:text-flux"
+          className="mt-6 inline-flex min-h-[44px] items-center justify-center self-center font-mono text-[10px] uppercase tracking-[0.18em] text-ghost transition-colors hover:text-flux"
         >
           Back to the portal
         </Link>

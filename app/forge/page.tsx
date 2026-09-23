@@ -242,7 +242,7 @@ export default async function ForgePage() {
           </p>
           <Link
             href="/tech"
-            className="mt-3 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-signal transition-colors hover:text-text"
+            className="mt-3 inline-flex min-h-[44px] items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-signal transition-colors hover:text-text"
           >
             Research unlocks more parameters
             <IconArrowRight size={12} />

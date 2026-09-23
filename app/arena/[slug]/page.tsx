@@ -56,7 +56,7 @@ export default async function ProblemPage({ params }: Params) {
       <main className="mx-auto max-w-[1440px] px-4 pb-28 pt-6 sm:px-6 lg:pb-8">
         <Link
           href="/arena"
-          className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ghost transition-colors hover:text-flux"
+          className="inline-flex min-h-[44px] items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ghost transition-colors hover:text-flux"
         >
           <IconArrowRight size={13} className="rotate-180" />
           Arena

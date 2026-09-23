@@ -76,7 +76,7 @@ export default async function GuildIndexPage() {
               </p>
               <Link
                 href="/atlas"
-                className="mt-5 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-flux transition-colors hover:text-text"
+                className="mt-5 inline-flex min-h-[44px] items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-flux transition-colors hover:text-text"
               >
                 See the nations that exist
                 <IconArrowRight size={12} />

@@ -240,7 +240,7 @@ export default async function ArenaPage({
               </p>
               <Link
                 href="/fairplay"
-                className="mt-4 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-signal transition-colors hover:text-text"
+                className="mt-4 inline-flex min-h-[44px] items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-signal transition-colors hover:text-text"
               >
                 Read the charter
                 <IconArrowRight size={12} />
@@ -272,7 +272,7 @@ function FilterPill({
       href={href}
       aria-current={active ? "page" : undefined}
       className={[
-        "inline-flex min-h-[36px] items-center rounded-chip border px-[13px] font-mono text-[10.5px] uppercase tracking-[0.14em] transition-colors",
+        "inline-flex min-h-[44px] items-center rounded-chip border px-[13px] font-mono text-[10.5px] uppercase tracking-[0.14em] transition-colors",
         active
           ? "border-[rgb(59_232_176/0.38)] bg-[rgb(59_232_176/0.12)] text-flux"
           : subtle

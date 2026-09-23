@@ -12,7 +12,7 @@ export function Wordmark({
   size?: number;
 }) {
   return (
-    <Link href={href} className={cn("group inline-flex items-center gap-[11px]", className)}>
+    <Link href={href} className={cn("group inline-flex min-h-[44px] items-center gap-[11px]", className)}>
       <span
         aria-hidden
         className="block rotate-45 rounded-[2px] transition-shadow duration-300 group-hover:shadow-[0_0_22px_-1px_rgb(59_232_176/0.95)]"

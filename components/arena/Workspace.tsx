@@ -413,7 +413,7 @@ export function Workspace({
               onClick={() => setTab(key)}
               aria-current={tab === key ? "true" : undefined}
               className={cn(
-                "min-h-[36px] rounded-chip px-[13px] font-mono text-[10px] uppercase tracking-[0.16em] transition-colors",
+                "min-h-[44px] rounded-chip px-[13px] font-mono text-[10px] uppercase tracking-[0.16em] transition-colors",
                 tab === key
                   ? "bg-[rgb(59_232_176/0.12)] text-flux"
                   : "text-ghost hover:text-dim",
