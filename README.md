@@ -61,6 +61,7 @@ pnpm seed                                 # synthetic citizens, nations, cities
 | `pnpm build` | Production build |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` | ESLint |
+| `pnpm test` | 106 unit tests over the game's rules |
 | `pnpm verify:seed` | Runs every seeded problem's reference solution against its cases |
 | `pnpm verify:refs` | Checks every tech / blueprint / item cross-reference resolves |
 | `pnpm verify:db` | Applies migrations + seed + invariants to a throwaway Postgres |
@@ -70,7 +71,15 @@ pnpm seed                                 # synthetic citizens, nations, cities
 
 ## Verification
 
-Three things here cannot be typechecked, so each has a real test:
+Four things here cannot be typechecked, so each has a real test:
+
+- **The rules of the game.** 106 unit tests (`pnpm test`) pin the economy, grading, fingerprints,
+  rank gates, Forge gates and atlas projection to the values the spec states — not to whatever
+  the implementation currently returns. They caught two bugs: the inscription filter let
+  letter-spaced evasion through, and the atlas constants sat in a `server-only` module. The
+  fingerprint suite asserts the property that actually matters, which is that *unrelated* programs
+  stay well below the similarity threshold — a false positive there costs someone their standing.
+
 
 - **Seed correctness.** Every problem carries a Python reference solution. `verify:seed` runs it
   against all 169 test cases and compares with the judge's own line-wise rule. It caught six wrong
