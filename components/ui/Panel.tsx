@@ -39,7 +39,10 @@ export function Panel({
     <Tag
       id={id}
       className={cn(
-        "relative rounded-panel border",
+        // min-w-0 is load-bearing: without it a grid or flex item defaults to
+        // min-width:auto and a wide child (the heatmap, a code block) drags the
+        // whole document wider than the viewport.
+        "relative min-w-0 rounded-panel border",
         variant === "glass" && "border-line bg-glass",
         variant === "solid" && "border-line bg-panel/85",
         tinted && "border-transparent",
