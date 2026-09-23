@@ -528,6 +528,27 @@ export type Database = {
         Args: { p_definition: string };
         Returns: number;
       };
+      /**
+       * Allocates the serial, checks the wallet, writes the debits and inserts
+       * the instance in one transaction. See migration 0012.
+       */
+      forge_item: {
+        Args: {
+          p_user: string;
+          p_definition: string;
+          p_params: Json;
+          p_seed: string;
+          p_season: number;
+          p_cost_compute?: number;
+          p_cost_data?: number;
+          p_cost_alloy?: number;
+        };
+        Returns: { item_id: string; item_serial: number }[];
+      };
+      delete_account: {
+        Args: { p_user: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       difficulty: Difficulty;
