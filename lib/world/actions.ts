@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createServiceSupabase, canUseServiceRole } from "@/lib/supabase/service";
-import { spend } from "@/lib/economy/mint";
+import { spend, mint } from "@/lib/economy/mint";
 import { REASONS } from "@/lib/economy/rules";
 import { hasRank, rankFor } from "@/lib/progression/ranks";
 import { toAccent } from "@/lib/design/accents";
@@ -106,7 +106,17 @@ export async function claimParcel(formData: FormData): Promise<WorldActionResult
     zoning: "compute",
   });
 
-  if (error) return { ok: false, message: "Could not claim that parcel." };
+  if (error) {
+    // Payment already landed, so refund rather than leaving the player short
+    // for a parcel they never got.
+    await mint({
+      userId: caller.id,
+      reason: REASONS.parcel,
+      grants: [{ resource: "compute", amount: cost }],
+      skipDiminishing: true,
+    });
+    return { ok: false, message: "Could not claim that parcel. Nothing was spent." };
+  }
 
   revalidatePath("/city");
   return { ok: true, message: `Parcel ${x},${y} claimed for ${cost} compute.` };
@@ -204,7 +214,21 @@ export async function startConstruction(formData: FormData): Promise<WorldAction
     eta,
   });
 
-  if (error) return { ok: false, message: "Could not start construction." };
+  if (error) {
+    // Refund the whole bundle: a building that never started must not cost
+    // anything. The ledger keeps both rows, so the wash is auditable.
+    await mint({
+      userId: caller.id,
+      reason: REASONS.build,
+      grants: [
+        { resource: "compute" as const, amount: cost?.compute ?? 0 },
+        { resource: "data" as const, amount: cost?.data ?? 0 },
+        { resource: "alloy" as const, amount: cost?.alloy ?? 0 },
+      ].filter((g) => g.amount > 0),
+      skipDiminishing: true,
+    });
+    return { ok: false, message: "Could not start construction. Nothing was spent." };
+  }
 
   await service.from("activity_feed").insert({
     actor_id: caller.id,
